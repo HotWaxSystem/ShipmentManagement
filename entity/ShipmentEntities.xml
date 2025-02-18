@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
+
+    <entity entity-name="Shipment" package="moqui.shipment">
+        <field name="shipmentId" type="id" is-pk="true"/>
+        <field name="shipmentTypeEnumId" type="id"/>
+        <field name="fromPartyId" type="id"/>
+        <field name="toPartyId" type="id"/>
+        <field name="estimatedShipDate" type="date-time"/>
+        <field name="statusId" type="id"/>
+        <field name="estimatedShipCost" type="currency-amount"/>
+        <field name="costUomId" type="id"/>
+        <field name="binLocationNumber" type="number-integer">
+        <description>For picking multiple shipments in a single shipment load </description></field>
+        <relationship type="one" related="moqui.basic.Uom">
+            <key-map field-name="costUomId"/></relationship>
+        <relationship type="one" title="ShipmentType" related="moqui.basic.Enumeration">
+            <key-map field-name="shipmentTypeEnumId"/>
+        </relationship>
+        <relationship type="one" related="moqui.party.Party">
+            <key-map field-name="fromPartyId"/></relationship>
+        <relationship type="one-nofk" related="moqui.organization.Organization">
+            <key-map field-name="fromPartyId"/></relationship>
+        <relationship type="one-nofk" related="moqui.person.Person">
+            <key-map field-name="fromPartyId"/></relationship>
+        <relationship type="one" related="moqui.party.Party">
+            <key-map field-name="toPartyId"/></relationship>
+        <relationship type="one-nofk" title="To" related="moqui.organization.Organization">
+            <key-map field-name="toPartyId"/></relationship>
+        <relationship type="one-nofk" title="To" related="moqui.person.Person">
+            <key-map field-name="toPartyId"/></relationship>
+        <relationship type="many" related="moqui.shipmentitem.ShipmentItem">
+            <key-map field-name="shipmentId"/></relationship>
+        <relationship type="many" related="moqui.shipmentpackage.ShipmentPackage">
+            <key-map field-name="shipmentId"/></relationship>
+        <relationship type="many" related="moqui.shipmentroutesegment.ShipmentRouteSegment">
+            <key-map field-name="shipmentId"/></relationship>
+        <relationship type="many" related="moqui.shipmentpackagerouteseg.ShipmentPackageRouteSeg">
+            <key-map field-name="shipmentId"/></relationship>
+        <relationship type="many" related="moqui.shipmentitemsource.ShipmentItemSource">
+            <key-map field-name="shipmentId"/></relationship>
+        <seed-data>
+            <moqui.basic.EnumerationType description="Shipment Type" enumTypeId="ShipmentType"/>
+            <moqui.basic.Enumeration description="Incoming" enumId="ShpTpIncoming" enumTypeId="ShipmentType"/>
+            <moqui.basic.Enumeration description="Outgoing" enumId="ShpTpOutgoing" enumTypeId="ShipmentType"/>
+            <moqui.basic.Enumeration description="Sales Return" parentEnumId="ShpTpIncoming" enumId="ShpTpSalesReturn" enumTypeId="ShipmentType"/>
+            <moqui.basic.Enumeration description="Sales Shipment" parentEnumId="ShpTpOutgoing" enumId="ShpTpSales" enumTypeId="ShipmentType"/>
+            <moqui.basic.Enumeration description="Purchase Shipment" parentEnumId="ShpTpIncoming" enumId="ShpTpPurchase" enumTypeId="ShipmentType"/>
+            <moqui.basic.Enumeration description="Purchase Return" parentEnumId="ShpTpOutgoing" enumId="ShpTpPurchaseReturn" enumTypeId="ShipmentType"/>
+            <moqui.basic.Enumeration description="Drop Shipment" enumId="ShpTpDrop" enumTypeId="ShipmentType"/>
+            <moqui.basic.Enumeration description="Transfer" enumId="ShpTpTransfer" enumTypeId="ShipmentType"/>
+        </seed-data>
+    </entity>
+
+    <entity entity-name="ShipmentItem" package="moqui.shipmentitem">
+        <field name="shipmentId" type="id" is-pk="true"/>
+        <field name="productId" type="id" is-pk="true"/>
+        <field name="quantity" type="number-decimal"/>
+        <relationship type="one" related="moqui.shipment.Shipment"/>
+        <relationship type="one" related="moqui.product.Product"/>
+        <relationship type="many" related="moqui.shipmentpackagecontent.ShipmentPackageContent">
+            <key-map field-name="shipmentId"/><key-map field-name="productId"/></relationship>
+    </entity>
+
+    <entity entity-name="ShipmentPackage" package="moqui.shipmentpackage">
+        <field name="shipmentId" type="id" is-pk="true"/>
+        <field name="shipmentPackageSeqId" type="id" is-pk="true"/>
+        <field name="weight" type="number-decimal"/>
+        <field name="weightUomId" type="id"/>
+        <relationship type="one" related="moqui.shipment.Shipment"/>
+        <relationship type="one" related="moqui.basic.Uom">
+            <key-map field-name="weightUomId"/></relationship>
+        <relationship type="many" related="moqui.shipmentpackagecontent.ShipmentPackageContent">
+            <key-map field-name="shipmentId"/><key-map field-name="shipmentPackageSeqId"/></relationship>
+        <relationship type="many" related="moqui.shipmentpackagerouteseg.ShipmentPackageRouteSeg">
+            <key-map field-name="shipmentId"/><key-map field-name="shipmentPackageSeqId"/></relationship>
+    </entity>
+
+    <entity entity-name="ShipmentPackageContent" package="moqui.shipmentpackagecontent">
+        <field name="shipmentId" type="id" is-pk="true"/>
+        <field name="shipmentPackageSeqId" type="id" is-pk="true"/>
+        <field name="productId" type="id" is-pk="true"/>
+        <field name="quantity" type="number-decimal"/>
+        <relationship type="one-nofk" related="moqui.shipment.Shipment"/>
+        <relationship type="one" related="moqui.shipmentpackage.ShipmentPackage">
+            <key-map field-name="shipmentId"/><key-map field-name="shipmentPackageSeqId"/></relationship>
+        <relationship type="one" related="moqui.shipmentitem.ShipmentItem">
+            <key-map field-name="shipmentId"/><key-map field-name="productId"/></relationship>
+        <relationship type="one-nofk" related="moqui.product.Product" short-alias="product"/>
+    </entity>
+
+    <entity entity-name="ShipmentRouteSegment" package="moqui.shipmentroutesegment">
+        <field name="shipmentId" type="id" is-pk="true"/>
+        <field name="shipmentRouteSegmentSeqId" type="id" is-pk="true"/>
+        <field name="carrierPartyId" type="id"/>
+        <field name="shipmentMethodEnumId" type="id"/>
+        <field name="originPostalContactMechId" type="id"/>
+        <field name="destPostalContactMechId" type="id"/>
+        <relationship type="one" related="moqui.shipment.Shipment"/>
+        <relationship type="one" related="moqui.party.Party">
+            <key-map field-name="carrierPartyId"/></relationship>
+        <relationship type="one" title="ShipmentMethod" related="moqui.basic.Enumeration">
+            <key-map field-name="shipmentMethodEnumId"/></relationship>
+        <relationship type="one-nofk" related="moqui.contactmech.ContactMech">
+            <key-map field-name="originPostalContactMechId"/></relationship>
+        <relationship type="one" related="moqui.postaladdress.PostalAddress">
+            <key-map field-name="originPostalContactMechId"/></relationship>
+        <relationship type="one-nofk" related="moqui.contactmech.ContactMech">
+            <key-map field-name="destPostalContactMechId"/></relationship>
+        <relationship type="one" related="moqui.postaladdress.PostalAddress">
+            <key-map field-name="destPostalContactMechId"/></relationship>
+        <relationship type="many" related="moqui.shipmentpackagerouteseg.ShipmentPackageRouteSeg">
+            <key-map field-name="shipmentId"/><key-map field-name="shipmentRouteSegmentSeqId"/></relationship>
+    </entity>
+
+    <entity entity-name="ShipmentPackageRouteSeg" package="moqui.shipmentpackagerouteseg">
+        <field name="shipmentId" type="id" is-pk="true"/>
+        <field name="shipmentRouteSegmentSeqId" type="id" is-pk="true"/>
+        <field name="shipmentPackageSeqId" type="id" is-pk="true"/>
+        <field name="trackingCode" type="text-medium"/>
+        <field name="labelImage" type="binary-very-long"/>
+        <field name="labelPrinted" type="text-indicator"/>
+        <relationship type="one-nofk" related="moqui.shipment.Shipment"/>
+        <relationship type="one" related="moqui.shipmentpackage.ShipmentPackage">
+            <key-map field-name="shipmentId"/><key-map field-name="shipmentPackageSeqId"/></relationship>
+        <relationship type="one" related="moqui.shipmentroutesegment.ShipmentRouteSegment">
+            <key-map field-name="shipmentId"/><key-map field-name="shipmentRouteSegmentSeqId"/></relationship>
+    </entity>
+
+    <entity entity-name="ShipmentItemSource" package="moqui.shipmentitemsource">
+        <field name="shipmentId" type="id"/>
+        <field name="productId" type="id"/>
+        <field name="orderId" type="id" is-pk="true"/>
+        <field name="orderItemSeqId" type="id" is-pk="true"/>
+        <field name="statusId" type="id"/>
+        <field name="quantity" type="number-decimal"/>
+        <relationship type="one" related="moqui.shipment.Shipment"/>
+        <relationship type="one" related="moqui.product.Product"/>
+        <relationship type="one-nofk" related="moqui.orderheader.OrderHeader"/>
+        <relationship type="one" related="moqui.orderitem.OrderItem"/>
+    </entity>
+
+    <entity entity-name="Party" package="moqui.party">
+        <field name="partyId" type="id" is-pk="true"/>
+        <relationship type="one-nofk" related="moqui.person.Person"/>
+        <relationship type="one-nofk" related="moqui.organization.Organization"/>
+    </entity>
+
+    <entity entity-name="Person" package="moqui.person">
+        <field name="partyId" type="id" is-pk="true"/>
+        <field name="firstName" type="text-medium"/>
+        <field name="lastName" type="text-medium"/>
+        <field name="birthDate" type="date" />
+        <relationship type="one" related="moqui.party.Party">
+            <key-map field-name="partyId" related="partyId"/>
+        </relationship>
+    </entity>
+
+    <entity entity-name="Organization" package="moqui.organization">
+        <field name="partyId" type="id" is-pk="true"/>
+        <field name="organizationName" type="text-medium"/>
+        <relationship type="one" related="moqui.party.Party">
+            <key-map field-name="partyId" related="partyId"/>
+        </relationship>
+    </entity>
+
+    <entity entity-name="Product" package="moqui.product">
+        <field name="productId" type="id" is-pk="true"/>
+    </entity>
+
+     <entity entity-name="ContactMech" package="moqui.contactmech">
+        <field name="contactMechId" type="id" is-pk="true"/>
+        <field name="infoString" type="text-medium"/>
+        <relationship type="one-nofk" related="moqui.postaladdress.PostalAddress"/>
+    </entity>
+
+     <entity entity-name="PostalAddress" package="moqui.postaladdress">
+        <field name="contactMechId" type="id" is-pk="true" />
+        <field name="toName" type="text-medium" />
+        <field name="attnName" type="text-medium" />
+        <field name="address1" type="text-medium" />
+        <field name="address2" type="text-medium" />
+        <field name="city" type="text-medium" />
+        <field name="postalCode" type="text-short" />
+        <relationship type="one" related="moqui.contactmech.ContactMech">
+            <key-map field-name="contactMechId" related="contactMechId" />
+        </relationship>
+    </entity>
+
+    <entity entity-name="OrderHeader" package="moqui.orderheader">
+        <field name="orderId" type="id" is-pk="true"/>
+        <field name="statusId" type="id"/>
+        <field name="orderDate" type="date"/>
+    </entity>
+
+    <entity entity-name="OrderItem" package="moqui.orderitem">
+        <field name="orderId" type="id" is-pk="true"/>
+        <field name="orderItemSeqId" type="id" is-pk="true"/>
+        <relationship type="one" related="moqui.orderheader.OrderHeader"/>
+    </entity>
+</entities>
