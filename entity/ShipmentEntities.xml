@@ -19,17 +19,17 @@
             <key-map field-name="shipmentTypeEnumId"/>
         </relationship>
         <relationship type="one" related="moqui.party.Party">
-            <key-map field-name="fromPartyId"/></relationship>
+            <key-map field-name="fromPartyId" related="partyId"/></relationship>
         <relationship type="one-nofk" related="moqui.organization.Organization">
-            <key-map field-name="fromPartyId"/></relationship>
+            <key-map field-name="fromPartyId" related="partyId"/></relationship>
         <relationship type="one-nofk" related="moqui.person.Person">
-            <key-map field-name="fromPartyId"/></relationship>
+            <key-map field-name="fromPartyId" related="partyId"/></relationship>
         <relationship type="one" related="moqui.party.Party">
+            <key-map field-name="toPartyId" related="partyId"/></relationship>
+        <relationship type="one-nofk" related="moqui.organization.Organization">
             <key-map field-name="toPartyId"/></relationship>
-        <relationship type="one-nofk" title="To" related="moqui.organization.Organization">
-            <key-map field-name="toPartyId"/></relationship>
-        <relationship type="one-nofk" title="To" related="moqui.person.Person">
-            <key-map field-name="toPartyId"/></relationship>
+        <relationship type="one-nofk" related="moqui.person.Person">
+            <key-map field-name="toPartyId" related="partyId"/></relationship>
         <relationship type="many" related="moqui.shipmentitem.ShipmentItem">
             <key-map field-name="shipmentId"/></relationship>
         <relationship type="many" related="moqui.shipmentpackage.ShipmentPackage">
@@ -143,8 +143,17 @@
 
     <entity entity-name="Party" package="moqui.party">
         <field name="partyId" type="id" is-pk="true"/>
+        <field name="partyTypeEnumId" type="id"/>
         <relationship type="one-nofk" related="moqui.person.Person"/>
         <relationship type="one-nofk" related="moqui.organization.Organization"/>
+        <relationship type="one" related="moqui.basic.Enumeration" title="PartyType">
+                <key-map field-name="partyTypeEnumId" />
+        </relationship>
+        <seed-data>
+            <moqui.basic.EnumerationType description="Party Type" enumTypeId="PartyType"/>
+            <moqui.basic.Enumeration description="Person" enumId="Person" enumTypeId="PartyType" />
+            <moqui.basic.Enumeration description="Organization" enumId="Organization" enumTypeId="PartyType" />
+        </seed-data>
     </entity>
 
     <entity entity-name="Person" package="moqui.person">
@@ -167,6 +176,8 @@
 
     <entity entity-name="Product" package="moqui.product">
         <field name="productId" type="id" is-pk="true"/>
+        <field name="productName" type="text-medium"/>
+        <field name="brandName" type="text-medium"/>
     </entity>
 
      <entity entity-name="ContactMech" package="moqui.contactmech">
